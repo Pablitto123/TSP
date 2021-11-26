@@ -30,7 +30,6 @@ using tsp_solutions_t = std::vector<tsp_solution_t>;
 
 struct NewVertex {
     NewVertex(vertex_t v = {}, cost_t cost = 0) : coordinates(v), cost(cost) {}
-
     vertex_t coordinates;
     cost_t cost;
 };

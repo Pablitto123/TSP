@@ -137,11 +137,30 @@ cost_t CostMatrix::get_vertex_cost(std::size_t row, std::size_t col) const {
  * - Look for vertex_t (pair row and column) with value 0 in the current cost matrix.
  * - Get the vertex_t cost (calls get_vertex_cost()).
  * - Choose the vertex_t with maximum cost and returns it.
- * @param cm
  * @return The coordinates of the next vertex.
  */
 NewVertex StageState::choose_new_vertex() {
-    throw;  // TODO: Implement it!
+    int min_p = INF; //present minimum
+    int min_l = INF; //last minimum
+    std::size_t c_index;
+    std::size_t r_index;
+    vertex_t vert;
+    for(auto row_it = matrix_.get_matrix().cbegin(); row_it < matrix_.get_matrix().cend(); row_it++){
+        for(auto col_it = row_it->cbegin();col_it < row_it->cend(); col_it++){
+            r_index = (std::size_t)(row_it - matrix_.get_matrix().cbegin());
+            c_index = (std::size_t)(col_it - row_it->cbegin());
+            if(*col_it == 0){
+                min_p = std::min(min_p, matrix_.get_vertex_cost(r_index,c_index));
+            }
+            if(min_p < min_l){
+                vert.col = c_index;
+                vert.row = r_index;
+            }
+            min_l = min_p;
+        }
+    }
+    auto n_V = NewVertex(vert);
+    return n_V;
 }
 
 /**
@@ -149,7 +168,17 @@ NewVertex StageState::choose_new_vertex() {
  * @param new_vertex
  */
 void StageState::update_cost_matrix(vertex_t new_vertex) {
-    throw;  // TODO: Implement it!
+
+    //make col INF
+
+    for(auto it = matrix_.get_matrix().begin(); it < matrix_.get_matrix().end(); it++){
+        (*it)[new_vertex.col] = INF;
+    }
+    auto row_it = matrix_.get_matrix().begin() + new_vertex.row;
+    //make row INF
+    for(auto it = row_it->begin(); it < row_it->end(); it++){
+        (*it) = INF;
+    }
 }
 
 /**
@@ -157,7 +186,7 @@ void StageState::update_cost_matrix(vertex_t new_vertex) {
  * @return The sum of reduced values.
  */
 cost_t StageState::reduce_cost_matrix() {
-    throw;  // TODO: Implement it!
+    return matrix_.reduce_rows() + matrix_.reduce_cols();
 }
 
 /**
@@ -170,11 +199,11 @@ cost_t get_optimal_cost(const path_t& optimal_path, const cost_matrix_t& m) {
     cost_t cost = 0;
 
     for (std::size_t idx = 1; idx < optimal_path.size(); ++idx) {
-        cost += m[optimal_path[idx - 1]][optimal_path[idx]];
+        cost += m[optimal_path[idx - 1] - 1][optimal_path[idx] - 1];
     }
 
     // Add the cost of returning from the last city to the initial one.
-    cost += m[optimal_path[optimal_path.size() - 1]][optimal_path[0]];
+    cost += m[optimal_path[optimal_path.size() - 1] - 1][optimal_path[0] - 1];
 
     return cost;
 }

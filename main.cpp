@@ -30,6 +30,9 @@ int main() {
     };
     CostMatrix cost_matr(cm);
     print_matr(cost_matr);
+    auto ss = StageState(cost_matr);
+    ss.update_cost_matrix(vertex_t(1,2));
+    print_matr(ss.get_matrix());
 //    auto min_vals = cost_matr.get_min_values_in_rows();
 //    for(auto row = min_vals.cbegin(); row < min_vals.cend(); row++) {
 //        std::cout << *row <<std::endl;

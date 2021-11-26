@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <stack>
 #include <optional>
-
+#include <iostream>
 std::ostream& operator<<(std::ostream& os, const CostMatrix& cm) {
     for (std::size_t r = 0; r < cm.size(); ++r) {
         for (std::size_t c = 0; c < cm.size(); ++c) {
@@ -49,7 +49,18 @@ std::vector<cost_t> CostMatrix::get_min_values_in_rows() const {
  * @return Sum of values reduced in rows.
  */
 cost_t CostMatrix::reduce_rows() {
-    throw;  // TODO: Implement it!
+    auto min_rows = get_min_values_in_rows();
+    int sum = 0;
+    auto min_it = min_rows.begin();
+    for(auto row_it = matrix_.begin(); row_it < matrix_.end();++row_it){
+        for(auto col_it = row_it->begin(); col_it < row_it->end(); ++col_it){
+            if(*col_it != INF)
+            *col_it -= *min_it;
+        }
+        sum += *min_it;
+        min_it++;
+    }
+    return sum;
 }
 
 /**
@@ -58,10 +69,8 @@ cost_t CostMatrix::reduce_rows() {
  */
 std::vector<cost_t> CostMatrix::get_min_values_in_cols() const {
     std::vector<cost_t> cost_vector(0);
-    cost_t m_cost;
     bool flag = false;
     for(auto row = matrix_.cbegin(); row<matrix_.cend(); ++row){
-        m_cost = INF;
         auto cost_vector_it = cost_vector.begin();
         for(auto col = row->cbegin(); col < row->cend(); ++col){
             if(!flag) cost_vector.push_back(*col);
@@ -81,7 +90,23 @@ std::vector<cost_t> CostMatrix::get_min_values_in_cols() const {
  * @return Sum of values reduced in columns.
  */
 cost_t CostMatrix::reduce_cols() {
-    throw;  // TODO: Implement it!
+    auto min_cols = get_min_values_in_cols();
+    int sum = 0;
+    auto min_it = min_cols.cbegin();
+    for(auto row_it = matrix_.begin(); row_it < matrix_.end();++row_it){
+        min_it = min_cols.cbegin();
+        for(auto col_it = row_it->begin(); col_it < row_it->end(); col_it++){
+            if(*col_it != INF) {
+                *col_it -= *min_it;
+            }
+            min_it++;
+        }
+    }
+
+    for(auto it = min_cols.cbegin(); it < min_cols.cend(); it++){
+        sum += *it;
+    }
+    return sum;
 }
 
 /**
@@ -91,7 +116,18 @@ cost_t CostMatrix::reduce_cols() {
  * @return The sum of minimal values in row and col, excluding the intersection value.
  */
 cost_t CostMatrix::get_vertex_cost(std::size_t row, std::size_t col) const {
-    throw;  // TODO: Implement it!
+    auto row_it = matrix_.cbegin() + row;
+    int min_row = INF;
+    for(auto it = row_it->cbegin(); it < row_it->cend();it++){
+        if(it - row_it->cbegin() != col)
+            min_row = std::min(*it,min_row);
+    }
+    int min_col = INF;
+    for(auto it = matrix_.cbegin(); it < matrix_.cend(); it++){
+        if(it - matrix_.cbegin() != row)
+            min_col = std::min((*it)[col], min_col);
+    }
+    return min_col+min_row;
 }
 
 /* PART 2 */

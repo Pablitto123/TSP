@@ -4,6 +4,21 @@
 #include <stack>
 #include <optional>
 #include <iostream>
+
+void print_matr(const CostMatrix& cmatr){
+    auto i_matr = cmatr.get_matrix();
+    for(auto row_it = i_matr.cbegin(); row_it < i_matr.cend(); row_it++){
+        for(auto col_it = row_it->cbegin(); col_it < row_it->cend(); col_it ++){
+            if( *col_it != INF)
+                std::cout << *col_it << ", ";
+            else
+                std::cout << "INF" << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+}
+
 std::ostream& operator<<(std::ostream& os, const CostMatrix& cm) {
     for (std::size_t r = 0; r < cm.size(); ++r) {
         for (std::size_t c = 0; c < cm.size(); ++c) {
@@ -24,7 +39,8 @@ std::ostream& operator<<(std::ostream& os, const CostMatrix& cm) {
  * @return The vector of consecutive vertex.
  */
 path_t StageState::get_path() {
-    throw;  // TODO: Implement it!
+
+        throw;//TODO
 }
 
 /**
@@ -159,6 +175,7 @@ NewVertex StageState::choose_new_vertex() {
             min_l = min_p;
         }
     }
+    std::cout<<vert.row<<"  "<<vert.col<<std::endl;
     auto n_V = NewVertex(vert);
     return n_V;
 }
@@ -170,14 +187,12 @@ NewVertex StageState::choose_new_vertex() {
 void StageState::update_cost_matrix(vertex_t new_vertex) {
 
     //make col INF
-
-    for(auto it = matrix_.get_matrix().begin(); it < matrix_.get_matrix().end(); it++){
-        (*it)[new_vertex.col] = INF;
+    matrix_[new_vertex.col][new_vertex.row] = INF;
+    for(std::size_t i = 0; i < matrix_.get_matrix().size(); i++){
+        matrix_[i][new_vertex.col] = INF;
     }
-    auto row_it = matrix_.get_matrix().begin() + new_vertex.row;
-    //make row INF
-    for(auto it = row_it->begin(); it < row_it->end(); it++){
-        (*it) = INF;
+    for(std::size_t i = 0; i < matrix_.get_matrix().cbegin()->size(); i++){
+        matrix_[new_vertex.row][i] = INF;
     }
 }
 

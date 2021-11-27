@@ -139,6 +139,8 @@ TEST(StageState_test, reduce_cost_matrix){
 
 }
 
+
+
 TEST(StageState_test, choose_new_vertex_test){
 
     cost_matrix_t cmt {
@@ -151,7 +153,39 @@ TEST(StageState_test, choose_new_vertex_test){
 
     CostMatrix matr1(cmt);
     auto ss1 = StageState(matr1);
+    NewVertex nw = ss1.choose_new_vertex();
     ss1.reduce_cost_matrix();
-    EXPECT_EQ(ss1.choose_new_vertex(), cmt);
+    vertex_t t_vert = nw.coordinates;
+    EXPECT_EQ(t_vert.row, 0);
+    EXPECT_EQ(t_vert.col, 2);
+
+}
+
+TEST(StageState_test, update_cost_matrix){
+    cost_matrix_t cm {
+            {INF, 12,   3,  45,   6},
+            {78, INF,  90,  21,   3},
+            { 5,  56, INF,  23,  98},
+            {12,   6,   8, INF,  34},
+            { 3,  98,   3,   2, INF}
+    };
+    cost_matrix_t cmt {
+            {INF, 9,   0,   42,  3},
+            {75,  INF, 87,  18,  0},
+            {0,   51,  INF, 18,  93},
+            {6,   0,   2,   INF, 28},
+            {1,   96,  1,   0,   INF}
+    };
+    cost_matrix_t cmc {
+            {INF,  9,   INF,   42,   3},
+            {INF,  INF, INF,   INF,  INF},
+            {0,    INF,  INF,   18,   93},
+            {6,    0,   INF,   INF,  28},
+            {1,    96,  INF,   0,    INF}
+    };
+    CostMatrix matr1(cmt);
+    auto ss1 = StageState(matr1);
+    ss1.update_cost_matrix(vertex_t(1,2));
+    EXPECT_EQ(ss1.get_matrix().get_matrix(), cmc);
 
 }

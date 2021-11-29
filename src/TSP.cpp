@@ -39,8 +39,26 @@ std::ostream& operator<<(std::ostream& os, const CostMatrix& cm) {
  * @return The vector of consecutive vertex.
  */
 path_t StageState::get_path() {
+    auto nv = choose_new_vertex().coordinates;
+    unsorted_path_.push_back(nv);
+    update_cost_matrix(nv);
 
-        throw;//TODO
+    nv = choose_new_vertex().coordinates;
+    unsorted_path_.push_back(nv);
+    update_cost_matrix(nv);
+    path_t sol = {};
+    vertex_t c_vertex = (*unsorted_path_.cbegin());
+    sol.push_back(c_vertex.row);
+    //while(sol.size() < (unsorted_path_.size()-1)) {
+        for (auto path:unsorted_path_) {
+            if (c_vertex.col == path.row) {
+                sol.push_back(c_vertex.col);
+                c_vertex = path;
+            }
+
+        }
+    //}
+    return sol;
 }
 
 /**
@@ -166,7 +184,7 @@ NewVertex StageState::choose_new_vertex() {
             r_index = (std::size_t)(row_it - matrix_.get_matrix().cbegin());
             c_index = (std::size_t)(col_it - row_it->cbegin());
             if(*col_it == 0){
-                min_p = std::min(min_p, matrix_.get_vertex_cost(r_index,c_index));
+                min_p = std::min(min_p, matrix_.get_vertex_cost(c_index,r_index));
             }
             if(min_p < min_l){
                 vert.col = c_index;
@@ -191,9 +209,48 @@ void StageState::update_cost_matrix(vertex_t new_vertex) {
     for(std::size_t i = 0; i < matrix_.get_matrix().size(); i++){
         matrix_[i][new_vertex.col] = INF;
     }
+
     for(std::size_t i = 0; i < matrix_.get_matrix().cbegin()->size(); i++){
         matrix_[new_vertex.row][i] = INF;
     }
+    bool if_begin_in_path = false;
+    bool if_end_in_path = false;
+    std::size_t index = 0;
+    std::size_t last_index = 0;
+    for(std::size_t r = 0; r < matrix_.get_matrix().size(); r++){
+        for(std::size_t c = 0; c < matrix_.get_matrix().cbegin()->size(); c++)
+        {
+            if(matrix_[r][c] != INF){
+                for(auto up:unsorted_path_){
+                    if (up.row ==  c){
+                        if_end_in_path = true;
+                    }
+                    if (up.col == r){
+                        if_begin_in_path = true;
+                    }
+                }
+                if(if_begin_in_path and if_end_in_path){
+
+                    index = c;
+                    last_index = c;
+                    while(true){
+                        for(auto it:unsorted_path_){
+                            if (it.row == index){
+                                index = it.col;
+                            }
+                        }
+                        if(last_index == index)break;
+                        if(index == r){matrix_[r][c] = INF; break;}
+                    }
+
+                }
+                if_end_in_path  = false;
+                if_begin_in_path = false;
+            }
+        }
+    }
+
+
 }
 
 /**
@@ -290,7 +347,7 @@ tsp_solutions_t solve_tsp(const cost_matrix_t& cm) {
             }
 
             // 1. Reduce the matrix in rows and columns.
-            cost_t new_cost = 0; // @TODO (KROK 1)
+            cost_t new_cost = left_branch.reduce_cost_matrix(); // @TODO (KROK 1)
 
             // 2. Update the lower bound and check the break condition.
             left_branch.update_lower_bound(new_cost);
@@ -299,11 +356,12 @@ tsp_solutions_t solve_tsp(const cost_matrix_t& cm) {
             }
 
             // 3. Get new vertex and the cost of not choosing it.
-            NewVertex new_vertex = NewVertex(); // @TODO (KROK 2)
+            NewVertex new_vertex = left_branch.choose_new_vertex(); // @TODO (KROK 2)
 
-            // 4. @TODO Update the path - use append_to_path method.
 
-            // 5. @TODO (KROK 3) Update the cost matrix of the left branch.
+            left_branch.append_to_path(new_vertex.coordinates);// 4. @TODO Update the path - use append_to_path method.
+
+            left_branch.update_cost_matrix(new_vertex.coordinates);// 5. @TODO (KROK 3) Update the cost matrix of the left branch.
 
             // 6. Update the right branch and push it to the LIFO.
             cost_t new_lower_bound = left_branch.get_lower_bound() + new_vertex.cost;

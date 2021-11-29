@@ -53,13 +53,8 @@ int main() {
             {12,   6,   8, INF,  34},
             { 3,  98,   3,   2, INF}
     };
-    CostMatrix cost_matr(cm);
-    auto ss = StageState(cost_matr);
-    auto path = ss.get_path();
-    for( auto it = path.cbegin(); it < path.cend(); it++){
-        std::cout << *it <<std::endl;
-    }
-    std::cout<<std::endl<<std::endl << ss.get_lower_bound() <<std::endl;
+    auto sol = solve_tsp(cm);
+    std::cout <<"koniec";
 
     /* Rozwiązanie:
      * 30 : 4 3 2 0 1

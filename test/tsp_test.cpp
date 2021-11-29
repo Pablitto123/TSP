@@ -145,9 +145,9 @@ TEST(StageState_test, choose_new_vertex_test){
 
     cost_matrix_t cmt {
             {INF, 9,   0,   42,  3},
-            {75,  INF, 87,  18,  0},
-            {0,   51,  INF, 18,  93},
-            {6,   0,   2,   INF, 28},
+            {9,  INF, 87,   18,  0},
+            {0,   1,  INF,  1,    10},
+            {1,   0,   2,   INF, 28},
             {1,   96,  1,   0,   INF}
     };
 
@@ -156,8 +156,8 @@ TEST(StageState_test, choose_new_vertex_test){
     NewVertex nw = ss1.choose_new_vertex();
     ss1.reduce_cost_matrix();
     vertex_t t_vert = nw.coordinates;
-    EXPECT_EQ(t_vert.row, 0);
-    EXPECT_EQ(t_vert.col, 2);
+    EXPECT_EQ(t_vert.row, 2);
+    EXPECT_EQ(t_vert.col, 0);
 
 }
 
